@@ -13,10 +13,6 @@ const App = () => {
     }
   }, []);
 
-  const handleClaim = () => {
-    navigate('/checkin'); // Real claim is handled on checkin page
-  };
-
   if (!user) {
     return (
       <div className="p-6 text-center">
@@ -39,15 +35,15 @@ const App = () => {
         <div className="flex items-center space-x-2">
           <div className="bg-amber-100 px-3 py-1 rounded-full flex items-center">
             <FaCoins className="text-amber-600 mr-1" />
-            <span className="font-bold">{user.coinBalance}</span>
+            <span className="font-bold">{user.coinBalance || 0}</span>
           </div>
           <div className="bg-purple-100 px-3 py-1 rounded-full flex items-center">
             <FaGem className="text-purple-600 mr-1" />
-            <span className="font-bold">{user.gems}</span>
+            <span className="font-bold">{user.gems || 0}</span>
           </div>
           <div className="bg-green-100 px-3 py-1 rounded-full flex items-center">
             <FaTicketAlt className="text-green-600 mr-1" />
-            <span className="font-bold">{user.bonusSlots}</span>
+            <span className="font-bold">{user.bonusSlots || 0}</span>
           </div>
         </div>
       </header>
@@ -76,7 +72,7 @@ const App = () => {
           <h2 className="text-lg font-bold text-gray-800">Daily Reward</h2>
           <div className="flex items-center bg-amber-100 px-3 py-1 rounded-full">
             <FaFire className="text-amber-600 mr-1" />
-            <span className="text-amber-700 font-medium">Day {user.streakCount}</span>
+            <span className="text-amber-700 font-medium">Day {user.streakCount || 0}</span>
           </div>
         </div>
 
@@ -92,7 +88,7 @@ const App = () => {
           </div>
 
           <button
-            onClick={handleClaim}
+            onClick={() => navigate('/checkin')}
             className="px-4 py-2 rounded-lg font-medium bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 shadow-md"
           >
             Check-in
@@ -122,7 +118,7 @@ const App = () => {
             <div className="flex items-center justify-between bg-white bg-opacity-50 p-3 rounded-lg mb-4">
               <div className="flex items-center">
                 <FaTicketAlt className="text-indigo-600 mr-2" />
-                <span className="text-sm font-medium">{user.bonusSlots} spins available</span>
+                <span className="text-sm font-medium">{user.bonusSlots || 0} spins available</span>
               </div>
               <div className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full text-xs">
                 Active

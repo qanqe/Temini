@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import apiService from '../services/api';
-import Lottie from 'lottie-react';
 import confetti from 'canvas-confetti';
 
 const CheckinPage = () => {
@@ -27,7 +26,7 @@ const CheckinPage = () => {
     try {
       const res = await apiService.dailyCheckin(user.telegramId);
 
-      const { streak, coinReward, bonusSlots } = res;
+      const { streak } = res;
       confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
 
       if (streak > 0 && streak % 7 === 0) {
@@ -46,21 +45,26 @@ const CheckinPage = () => {
   };
 
   return (
-    <div className="p-4 min-h-screen bg-tg-theme-bg">
+    <div
+      className="p-4 min-h-screen bg-tg-theme-bg"
+      style={{
+        '--tg-theme-bg': window.Telegram?.WebApp?.themeParams?.bg_color || '#f8f9fa'
+      }}
+    >
       {/* Header */}
       <div className="flex justify-between mb-4">
         <div className="space-x-2 flex items-center">
-          <span className="px-3 py-1 bg-yellow-100 rounded-full">🪙 {user.coinBalance}</span>
-          <span className="px-3 py-1 bg-purple-100 rounded-full">💎 {user.gems}</span>
+          <span className="px-3 py-1 bg-yellow-100 rounded-full">🪙 {user?.coinBalance || 0}</span>
+          <span className="px-3 py-1 bg-purple-100 rounded-full">💎 {user?.gems || 0}</span>
         </div>
-        <span className="px-3 py-1 bg-blue-100 rounded-full">🎟️ {user.bonusSlots}</span>
+        <span className="px-3 py-1 bg-blue-100 rounded-full">🎟️ {user?.bonusSlots || 0}</span>
       </div>
 
-      {/* Streak */}
+      {/* Streak Info */}
       <div className="rounded-xl p-4 mb-4 text-center bg-white shadow">
         <div className="text-sm text-gray-600">Current Streak</div>
-        <div className="text-3xl font-bold text-orange-500">{user.streakCount} 🔥</div>
-        {user.lastCheckIn && (
+        <div className="text-3xl font-bold text-orange-500">{user?.streak || 0} 🔥</div>
+        {user?.lastCheckIn && (
           <div className="text-xs text-gray-400 mt-1">
             Last check-in: {new Date(user.lastCheckIn).toLocaleDateString()}
           </div>
@@ -82,7 +86,7 @@ const CheckinPage = () => {
         <div className="text-green-600 text-sm text-center mt-2">Check-in successful!</div>
       )}
 
-      {/* Summary */}
+      {/* Reward Summary */}
       <div className="mt-6 text-sm text-gray-600">
         <h3 className="font-bold mb-2">Rewards This Week:</h3>
         <ul className="space-y-1">
@@ -90,7 +94,7 @@ const CheckinPage = () => {
           <li>🎟️ Day 3: +1 Spin</li>
           <li>🎟️ Day 5: +2 Spins</li>
           <li>🎟️ Day 7: +3 Spins</li>
-          <li>🎟️ Over 7: +1 Spin per day</li>
+          <li>🎟️ Day 8+: +1 Spin per day</li>
         </ul>
       </div>
     </div>

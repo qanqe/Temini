@@ -5,6 +5,7 @@ import Lottie from 'lottie-react';
 import confetti from 'canvas-confetti';
 import RewardList from '../components/RewardList';
 import BalanceHeader from '../components/BalanceHeader';
+import spinAnimation from '../assets/spin-animation.json';
 
 const SpinPage = () => {
   const { user, refreshUser } = useAuth();
@@ -42,7 +43,7 @@ const SpinPage = () => {
         triggerConfetti();
       }
 
-      await refreshUser(); // sync real backend balance
+      await refreshUser();
     } catch (error) {
       console.error('Spin failed:', error);
     } finally {
@@ -85,7 +86,6 @@ const SpinPage = () => {
 
         {slotsAvailable > 0 ? (
           <div className="bg-tg-theme-secondary-bg rounded-2xl shadow-xl p-6">
-            {/* Wheel Display */}
             <div className="relative mb-8">
               <div
                 className={`bg-tg-theme-bg border-2 border-dashed border-tg-theme-hint-color rounded-xl w-full h-48 flex items-center justify-center transition-all duration-300 ${
@@ -93,7 +93,7 @@ const SpinPage = () => {
                 }`}
               >
                 {isSpinning ? (
-                  <Lottie animationData={spinAnimation} loop={true} style={{ height: 180 }} />
+                  <Lottie animationData={spinAnimation} loop style={{ height: 180 }} />
                 ) : (
                   <div className="text-center">
                     {showReward && spinResult ? (
@@ -129,7 +129,6 @@ const SpinPage = () => {
               <div className="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-16 bg-tg-theme-button-color rounded-l-lg"></div>
             </div>
 
-            {/* Spin Button */}
             <button
               onClick={handleSpin}
               disabled={isSpinning || slotsAvailable <= 0}

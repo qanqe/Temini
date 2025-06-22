@@ -10,20 +10,30 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initTelegram = async () => {
+      if (!window.Telegram?.WebApp) {
+        console.warn('[Auth] Not running in Telegram WebApp');
+        setLoading(false);
+        return;
+      }
+
       try {
         const { default: WebApp } = await import('@twa-dev/sdk');
         WebApp.ready();
         WebApp.expand();
 
         const tgUser = WebApp.initDataUnsafe?.user;
-        if (!tgUser) {
-          console.error('Telegram user not found in initData');
+        const initData = WebApp.initData;
+
+        console.log('[DEBUG] Telegram user:', tgUser);
+        console.log('[DEBUG] initData:', initData);
+
+        if (!tgUser || !initData) {
+          console.error('[Auth] Missing tgUser or initData');
           return setLoading(false);
         }
 
         setTelegramUser(tgUser);
 
-        const initData = WebApp.initData;
         const payload = {
           telegramId: tgUser.id.toString(),
           username: tgUser.username || `${tgUser.first_name} ${tgUser.last_name || ''}`.trim(),
@@ -32,12 +42,14 @@ export const AuthProvider = ({ children }) => {
 
         const res = await apiService.authUser(payload);
         if (res.success && res.user) {
+          console.log('[Auth] Authenticated user:', res.user);
           setUser(res.user);
         } else {
-          console.error('Auth failed:', res);
+          console.error('[Auth] Auth failed:', res);
         }
+
       } catch (err) {
-        console.error('Telegram init or auth failed:', err);
+        console.error('[Auth] Telegram init/auth error:', err);
       } finally {
         setLoading(false);
       }
@@ -47,19 +59,25 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const refreshUser = async () => {
-    // To be used after check-in, spin, etc.
+    if (!telegramUser?.id) return;
     try {
-      const updated = await apiService.authUser({
+      const res = await apiService.authUser({
         telegramId: telegramUser.id.toString(),
         username: telegramUser.username,
-        initData: window.Telegram.WebApp.initData
+        initData: window.Telegram?.WebApp?.initData
       });
-      if (updated.success) {
-        setUser(updated.user);
+
+      if (res.success && res.user) {
+        console.log('[Auth] User refreshed:', res.user);
+        setUser(res.user);
       }
-    } catch (error) {
-      console.error('Refresh failed:', error);
+    } catch (err) {
+      console.error('[Auth] Refresh failed:', err);
     }
+  };
+
+  const updateUser = (newUserData) => {
+    setUser(prev => ({ ...prev, ...newUserData }));
   };
 
   return (
@@ -67,7 +85,8 @@ export const AuthProvider = ({ children }) => {
       user,
       loading,
       telegramUser,
-      refreshUser
+      refreshUser,
+      updateUser
     }}>
       {children}
     </AuthContext.Provider>

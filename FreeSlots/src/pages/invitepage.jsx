@@ -18,20 +18,21 @@ const InvitePage = () => {
 
   useEffect(() => {
     if (!window.Telegram?.WebApp) return;
-    window.Telegram.WebApp.expand();
+    const tg = window.Telegram.WebApp;
+    tg.expand();
     const onBack = () => window.history.back();
-    Telegram.WebApp.BackButton.onClick(onBack);
-    Telegram.WebApp.BackButton.show();
+    tg.BackButton.onClick(onBack);
+    tg.BackButton.show();
     return () => {
-      Telegram.WebApp.BackButton.offClick(onBack);
-      Telegram.WebApp.BackButton.hide();
+      tg.BackButton.offClick(onBack);
+      tg.BackButton.hide();
     };
   }, []);
 
   useEffect(() => {
     const loadReferral = async () => {
       try {
-        const res = await apiService.getReferralInfo(telegramUser.telegramId);
+        const res = await apiService.getReferralInfo(telegramUser.id);
         const username = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'yourBot';
         setReferralData({
           code: res.data.code,
@@ -57,7 +58,7 @@ const InvitePage = () => {
 
   const claimReward = async (rewardId) => {
     try {
-      const res = await apiService.claimReferralReward(telegramUser.telegramId, rewardId);
+      const res = await apiService.claimReferralReward(telegramUser.id, rewardId);
       setReferralData(prev => ({
         ...prev,
         rewards: prev.rewards.map(r =>
@@ -65,9 +66,9 @@ const InvitePage = () => {
         )
       }));
       updateUser({
-        coins: user.coins + (res.data.reward.type === 'coins' ? res.data.reward.value : 0),
-        gems: user.gems + (res.data.reward.type === 'gems' ? res.data.reward.value : 0),
-        slots: user.slots + (res.data.reward.type === 'slots' ? res.data.reward.value : 0)
+        coins: (user.coins || 0) + (res.data.reward.type === 'coins' ? res.data.reward.value : 0),
+        gems: (user.gems || 0) + (res.data.reward.type === 'gems' ? res.data.reward.value : 0),
+        slots: (user.slots || 0) + (res.data.reward.type === 'slots' ? res.data.reward.value : 0)
       });
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     } catch (e) {
@@ -106,7 +107,12 @@ const InvitePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-tg-theme-bg p-4">
+    <div
+      className="min-h-screen bg-tg-theme-bg p-4"
+      style={{
+        '--tg-theme-bg': window.Telegram?.WebApp?.themeParams?.bg_color || '#f8f9fa'
+      }}
+    >
       <header className="flex justify-between items-center mb-6 p-3 bg-tg-theme-secondary-bg rounded-xl shadow-md">
         <div className="flex items-center space-x-2">
           <div className="bg-yellow-100 px-3 py-1 rounded-full">🪙 {user.coins}</div>

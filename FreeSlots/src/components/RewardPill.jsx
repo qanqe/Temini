@@ -1,6 +1,5 @@
 import React from 'react';
 import rewardConfig from '../constants/rewardConfig';
-import { FaOldRepublic } from 'react-icons/fa';
 
 const RewardPill = ({ type }) => {
   const reward = rewardConfig[type];
@@ -20,7 +19,10 @@ const RewardPill = ({ type }) => {
   };
 
   return (
-    <div className="bg-white p-3 rounded-lg text-center relative shadow-sm">
+    <div
+      className="bg-white p-3 rounded-lg text-center relative shadow-sm"
+      aria-label={`Reward: ${getLabel()}`}
+    >
       <div className="text-2xl">{reward.emoji}</div>
       <p className="font-semibold">{getLabel()}</p>
       {'weight' in reward && (
