@@ -3,7 +3,6 @@ import { useAuth } from '../context/AuthContext';
 import apiService from '../services/api';
 import Lottie from 'lottie-react';
 import confetti from 'canvas-confetti';
-import checkinAnimation from '../assets/checkin-animation.json';
 
 const CheckinPage = () => {
   const { user, refreshUser } = useAuth();

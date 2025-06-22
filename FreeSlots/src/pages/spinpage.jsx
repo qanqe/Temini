@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import apiService from '../services/api';
 import Lottie from 'lottie-react';
-import spinAnimation from './assets/spin-animation.json';
 import confetti from 'canvas-confetti';
 import RewardList from '../components/RewardList';
 import BalanceHeader from '../components/BalanceHeader';
