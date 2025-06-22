@@ -6,9 +6,9 @@ import App from './App';
 import './index.css';
 
 // Lazy-loaded pages
-const SpinPage = lazy(() => import('./Pages/spinpage'));
-const CheckInPage = lazy(() => import('./Pages/checkingage'));
-const InvitePage = lazy(() => import('./Pages/invitepage'));
+const SpinPage = lazy(() => import('./pages/spinpage'));
+const CheckInPage = lazy(() => import('./pages/checkinpage'));
+const InvitePage = lazy(() => import('./pages/invitepage'));
 
 // Telegram WebApp safe initialization
 if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
