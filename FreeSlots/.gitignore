@@ -1,0 +1,22 @@
+# node_modules
+node_modules/
+
+# dotenv
+.env
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# Build files
+dist/
+build/
+.cache/
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
