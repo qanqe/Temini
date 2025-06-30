@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
 
         if (!tgUser || !initData) {
           alert('[Auth] Telegram user or initData is missing');
+          alert('[DEBUG] initData: ' + initData);
           setLoading(false);
           return;
         }
