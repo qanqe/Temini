@@ -4,26 +4,25 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import App from './App';
 import './index.css';
-
-// Lazy-loaded pages
-const SpinPage = lazy(() => import('./pages/spinpage'));
-const CheckInPage = lazy(() => import('./pages/checkinpage'));
-const InvitePage = lazy(() => import('./pages/invitepage'));
+import WebApp from '@twa-dev/sdk'; // ✅ Import Telegram WebApp SDK
 
 // Telegram WebApp safe initialization
-if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+if (typeof window !== 'undefined' && WebApp?.initData) {
   try {
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+    WebApp.ready();
+    WebApp.expand();
     document.documentElement.style.setProperty(
       '--tg-theme-bg',
-      tg.themeParams?.bg_color || '#ffffff'
+      WebApp.themeParams?.bg_color || '#ffffff'
     );
   } catch (err) {
     console.error('Telegram WebApp init failed:', err);
   }
 }
+
+const SpinPage = lazy(() => import('./pages/spinpage'));
+const CheckInPage = lazy(() => import('./pages/checkinpage'));
+const InvitePage = lazy(() => import('./pages/invitepage'));
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
