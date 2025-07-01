@@ -1,35 +1,27 @@
 import React from 'react';
-import rewardConfig from '../constants/rewardConfig';
 
-const RewardPill = ({ type }) => {
-  const reward = rewardConfig[type];
-
-  if (!reward) {
-    return (
-      <div className="bg-red-100 p-3 rounded-lg text-center text-red-600 font-semibold">
-        Invalid Reward
-      </div>
-    );
-  }
+const RewardPill = ({ type, amount }) => {
+  const getEmoji = () => {
+    if (type === 'coin') return '🪙';
+    if (type === 'gem') return '💎';
+    return '🔄';
+  };
 
   const getLabel = () => {
-    if (type.startsWith('coins')) return `${reward.value} Coins`;
-    if (type.startsWith('gems')) return `${reward.value} Gems`;
+    if (type === 'coin') return `${amount} Coins`;
+    if (type === 'gem') return `${amount} Gems`;
     return 'Try Again';
   };
 
   return (
     <div
-      className="bg-white p-3 rounded-lg text-center relative shadow-sm"
+      className={`p-3 rounded-lg text-center shadow-sm ${
+        type === 'none' ? 'bg-gray-100 text-gray-500' : 'bg-white'
+      }`}
       aria-label={`Reward: ${getLabel()}`}
     >
-      <div className="text-2xl">{reward.emoji}</div>
+      <div className="text-2xl">{getEmoji()}</div>
       <p className="font-semibold">{getLabel()}</p>
-      {'weight' in reward && (
-        <div className="absolute bottom-1 right-2 text-xs text-gray-400">
-          {reward.weight}x
-        </div>
-      )}
     </div>
   );
 };

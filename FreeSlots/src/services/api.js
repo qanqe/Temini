@@ -27,7 +27,7 @@ const handleRequest = async (requestFn) => {
 };
 
 const apiService = {
-  // Unified user auth
+  // Auth/Register/Login
   authUser: (body) =>
     handleRequest(() =>
       fetch(`${API_BASE_URL}/user/auth`, {
@@ -37,8 +37,18 @@ const apiService = {
       })
     ),
 
-  // Spin
-  spinWheel: (telegramId) =>
+  // FREE Slot Spin (Home Page)
+  freeSlot: (telegramId) =>
+    handleRequest(() =>
+      fetch(`${API_BASE_URL}/user/free-slot`, {
+        method: 'POST',
+        headers: buildHeaders(),
+        body: JSON.stringify({ telegramId, initData: window.Telegram.WebApp.initData })
+      })
+    ),
+
+  // PAID Spin (Spin Page)
+  paidSpin: (telegramId) =>
     handleRequest(() =>
       fetch(`${API_BASE_URL}/user/spin`, {
         method: 'POST',
@@ -47,7 +57,7 @@ const apiService = {
       })
     ),
 
-  // Check-in
+  // Daily Check-in
   dailyCheckin: (telegramId) =>
     handleRequest(() =>
       fetch(`${API_BASE_URL}/user/checkin`, {
@@ -71,7 +81,7 @@ const apiService = {
       })
     ),
 
-  // Reward logs
+  // Reward Logs
   getRewardLogs: () =>
     handleRequest(() =>
       fetch(`${API_BASE_URL}/user/rewards`, {

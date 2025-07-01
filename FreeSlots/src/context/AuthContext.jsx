@@ -72,13 +72,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Allow direct update (used in InvitePage for claiming reward without full refresh)
+  const updateUser = (updates) => {
+    setUser((prev) => ({
+      ...prev,
+      ...updates
+    }));
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
         loading,
         telegramUser,
-        refreshUser
+        refreshUser,
+        updateUser
       }}
     >
       {children}

@@ -5,7 +5,7 @@ import { FaCopy, FaWhatsapp, FaTelegram, FaTwitter, FaCheck } from "react-icons/
 import confetti from 'canvas-confetti';
 
 const InvitePage = () => {
-  const { user, telegramUser, updateUser } = useAuth();
+  const { user, telegramUser, refreshUser } = useAuth();
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [referralData, setReferralData] = useState({
@@ -33,20 +33,21 @@ const InvitePage = () => {
     const loadReferral = async () => {
       try {
         const res = await apiService.getReferralInfo(telegramUser.id);
-        const username = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'yourBot';
+        const botUsername = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'yourBot';
         setReferralData({
           code: res.data.code,
-          link: `https://t.me/${username}?startapp=${res.data.code}`,
+          link: `https://t.me/${botUsername}?startapp=${res.data.code}`,
           invitedCount: res.data.invitedCount,
           activeCount: res.data.activeCount,
           rewards: res.data.rewards
         });
       } catch (e) {
-        console.error("Referral info load failed", e);
+        console.error('Failed to load referral data', e);
       } finally {
         setIsLoading(false);
       }
     };
+
     if (telegramUser) loadReferral();
   }, [telegramUser]);
 
@@ -59,20 +60,18 @@ const InvitePage = () => {
   const claimReward = async (rewardId) => {
     try {
       const res = await apiService.claimReferralReward(telegramUser.id, rewardId);
+
       setReferralData(prev => ({
         ...prev,
         rewards: prev.rewards.map(r =>
           r.id === rewardId ? { ...r, claimed: true } : r
         )
       }));
-      updateUser({
-        coins: (user.coins || 0) + (res.data.reward.type === 'coins' ? res.data.reward.value : 0),
-        gems: (user.gems || 0) + (res.data.reward.type === 'gems' ? res.data.reward.value : 0),
-        slots: (user.slots || 0) + (res.data.reward.type === 'slots' ? res.data.reward.value : 0)
-      });
+
+      refreshUser();
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     } catch (e) {
-      console.error("Claim failed", e);
+      console.error('Reward claim failed', e);
     }
   };
 
@@ -93,7 +92,7 @@ const InvitePage = () => {
     return (
       <div className="p-4 text-center">
         <h2 className="text-xl font-bold text-tg-theme-text mb-2">Please open in Telegram</h2>
-        <p className="text-tg-theme-hint-color">This feature requires Telegram authentication</p>
+        <p className="text-tg-theme-hint-color">This feature requires Telegram authentication.</p>
       </div>
     );
   }
@@ -167,8 +166,17 @@ const InvitePage = () => {
         <div className="bg-tg-theme-secondary-bg rounded-2xl shadow-xl p-5 mb-6">
           <h2 className="font-bold text-lg text-tg-theme-text mb-4">Earn Rewards</h2>
           <div className="space-y-3">
-            {referralData.rewards.map(reward => (
-              <div key={reward.id} className={`p-4 rounded-xl border flex items-center justify-between ${reward.claimed ? 'bg-green-50 border-green-200' : referralData.activeCount >= reward.requiredActive ? 'bg-purple-50 border-purple-200' : 'border-gray-200'}`}>
+            {referralData.rewards.map((reward) => (
+              <div
+                key={reward.id}
+                className={`p-4 rounded-xl border flex items-center justify-between ${
+                  reward.claimed
+                    ? 'bg-green-50 border-green-200'
+                    : referralData.activeCount >= reward.requiredActive
+                    ? 'bg-purple-50 border-purple-200'
+                    : 'border-gray-200'
+                }`}
+              >
                 <div className="flex items-center">
                   <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mr-3">
                     {reward.type === 'coins' ? '🪙' : reward.type === 'gems' ? '💎' : '🎟️'}
@@ -183,7 +191,10 @@ const InvitePage = () => {
                     <FaCheck className="mr-1" /> Claimed
                   </div>
                 ) : referralData.activeCount >= reward.requiredActive ? (
-                  <button onClick={() => claimReward(reward.id)} className="bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium">
+                  <button
+                    onClick={() => claimReward(reward.id)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium"
+                  >
                     Claim
                   </button>
                 ) : (
