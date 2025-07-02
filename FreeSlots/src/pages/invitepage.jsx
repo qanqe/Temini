@@ -34,7 +34,7 @@ const InvitePage = () => {
     const loadReferral = async () => {
       try {
         const res = await apiService.getReferralInfo(telegramUser.id);
-        const link = `https://t.me/${botUsername}?start=${telegramUser.id}`;
+        const link = `https://t.me/${botUsername}?startapp=${telegramUser.id}`;
         setReferralData({
           link,
           invitedCount: res.data.invitedCount,
@@ -52,9 +52,14 @@ const InvitePage = () => {
   }, [telegramUser]);
 
   const copyLink = () => {
-    navigator.clipboard.writeText(referralData.link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      navigator.clipboard.writeText(referralData.link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.warn('Clipboard API blocked, using fallback');
+      prompt('Copy this link manually:', referralData.link);
+    }
   };
 
   const claimReward = async (rewardId) => {
@@ -74,13 +79,21 @@ const InvitePage = () => {
   };
 
   const shareVia = (platform) => {
-    const text = encodeURIComponent(`Join and earn rewards! ${referralData.link}`);
-    if (platform === 'telegram') {
-      window.open(`https://t.me/share/url?url=${referralData.link}&text=Join and earn rewards!`);
-    } else if (platform === 'whatsapp') {
-      window.open(`https://wa.me/?text=${text}`);
-    } else if (platform === 'twitter') {
-      window.open(`https://twitter.com/intent/tweet?text=${text}`);
+    const text = `Join and earn rewards! ${referralData.link}`;
+    const encodedText = encodeURIComponent(text);
+
+    switch (platform) {
+      case 'telegram':
+        window.open(`https://t.me/share/url?url=${encodedText}`);
+        break;
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${encodedText}`);
+        break;
+      case 'twitter':
+        window.open(`https://twitter.com/intent/tweet?text=${encodedText}`);
+        break;
+      default:
+        break;
     }
   };
 
@@ -169,7 +182,7 @@ const InvitePage = () => {
               >
                 <div className="flex items-center">
                   <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mr-3">
-                    {reward.type === 'coin' ? '🪙' : reward.type === 'gem' ? '💎' : '🎟️'}
+                    {reward.type === 'coin' ? '🪙' : reward.type === 'gem' ? '💎' : '🎁'}
                   </div>
                   <div>
                     <h3 className="font-bold">{reward.requiredActive} Active Friend{reward.requiredActive > 1 ? 's' : ''}</h3>

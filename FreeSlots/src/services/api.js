@@ -67,7 +67,7 @@ const apiService = {
       })
     ),
 
-  // Referral
+  // Referral (Apply Referrer Code)
   applyReferral: (telegramId, referrerId) =>
     handleRequest(() =>
       fetch(`${API_BASE_URL}/user/referral`, {
@@ -87,6 +87,29 @@ const apiService = {
       fetch(`${API_BASE_URL}/user/rewards`, {
         method: 'GET',
         headers: buildHeaders()
+      })
+    ),
+
+  // Get Referral Info
+  getReferralInfo: (telegramId) =>
+    handleRequest(() =>
+      fetch(`${API_BASE_URL}/user/referral-info?telegramId=${telegramId}`, {
+        method: 'GET',
+        headers: buildHeaders()
+      })
+    ),
+
+  // Claim Referral Reward
+  claimReferralReward: (telegramId, rewardId) =>
+    handleRequest(() =>
+      fetch(`${API_BASE_URL}/user/referral-claim`, {
+        method: 'POST',
+        headers: buildHeaders(),
+        body: JSON.stringify({
+          telegramId,
+          rewardId,
+          initData: window.Telegram.WebApp.initData
+        })
       })
     )
 };
