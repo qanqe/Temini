@@ -14,16 +14,16 @@ export default defineConfig({
     'process.env.VITE_BACKEND_URL': JSON.stringify(process.env.VITE_BACKEND_URL),
   },
   optimizeDeps: {
-    include: ['@twa-dev/sdk'], // pre-bundle @twa-dev/sdk for dev server
+    include: ['@twa-dev/sdk'], // ✅ Pre-bundle for dev server
   },
   resolve: {
     alias: {
-      '@twa-dev/sdk': path.resolve('./node_modules/@twa-dev/sdk'), // proper alias using path.resolve
+      '@twa-dev/sdk': path.resolve(__dirname, 'node_modules/@twa-dev/sdk'), // ✅ use __dirname for absolute safety
     },
   },
   build: {
     commonjsOptions: {
-      include: [/node_modules/, /@twa-dev\/sdk/], // bundle @twa-dev/sdk properly for production
+      include: [/node_modules/, /@twa-dev\/sdk/], // ✅ ensure CommonJS support
     },
   },
 });
