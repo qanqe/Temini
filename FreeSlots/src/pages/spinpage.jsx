@@ -23,7 +23,7 @@ const SpinPage = () => {
     setShowReward(false);
 
     try {
-      const result = await apiService.freeSlot(user.telegramId);
+      const result = await apiService.paidSpin(user.telegramId); // FIXED API METHOD
       const { reward } = result;
 
       setSpinResult(reward);
@@ -82,23 +82,25 @@ const SpinPage = () => {
                 ) : showReward && spinResult ? (
                   <div
                     className={`text-center animate-bounce ${
-                      spinResult.type === 'none'
+                      spinResult?.type === 'none'
                         ? 'text-gray-500'
                         : 'text-tg-theme-accent-text'
                     }`}
                   >
                     <div className="text-5xl mb-2">
-                      {spinResult.type === 'coin'
+                      {spinResult?.type === 'coin'
                         ? '🪙'
-                        : spinResult.type === 'gem'
+                        : spinResult?.type === 'gem'
                         ? '💎'
                         : '🔄'}
                     </div>
-                    <p className="text-xl font-bold">
-                      {spinResult.type !== 'none'
-                        ? `Won ${spinResult.amount} ${spinResult.type}`
-                        : 'Try Again!'}
-                    </p>
+                    {spinResult?.type !== 'none' ? (
+                      <p className="text-xl font-bold">
+                        Won {spinResult?.amount} {spinResult?.type === 'coin' ? 'Coins' : 'Gems'}
+                      </p>
+                    ) : (
+                      <p className="text-xl font-bold text-gray-500">Try Again!</p>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center text-tg-theme-hint-color">
