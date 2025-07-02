@@ -3,7 +3,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://freeslots-backend.
 const buildHeaders = () => ({
   'Content-Type': 'application/json',
   ...(window.Telegram?.WebApp?.initData && {
-    'X-Telegram-Auth': window.Telegram.WebApp.initData
+    'x-Telegram-Auth': window.Telegram.WebApp.initData
   })
 });
 
