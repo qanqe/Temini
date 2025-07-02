@@ -11,8 +11,10 @@ const CheckinModal = ({ onClose }) => {
   const [streak, setStreak] = useState(null);
   const [error, setError] = useState(null);
 
+  const todayKey = `checkinDone:${new Date().toDateString()}`;
+
   const handleCheckin = async () => {
-    if (!user || checkedIn) return;
+    if (!user || checkedIn || localStorage.getItem(todayKey)) return;
     setLoading(true);
     setError(null);
 
@@ -21,6 +23,7 @@ const CheckinModal = ({ onClose }) => {
       setCheckedIn(true);
       setReward(res.reward);
       setStreak(res.streak);
+      localStorage.setItem(todayKey, 'true');
       refreshUser();
     } else {
       setError(res.error);
@@ -30,8 +33,14 @@ const CheckinModal = ({ onClose }) => {
   };
 
   useEffect(() => {
-    handleCheckin();
-  }, []);
+    if (user && !localStorage.getItem(todayKey)) {
+      handleCheckin();
+    } else {
+      // Already checked in today — show this state directly
+      setCheckedIn(true);
+      setLoading(false);
+    }
+  }, [user]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
@@ -69,9 +78,11 @@ const CheckinModal = ({ onClose }) => {
               className="space-y-2"
             >
               <p className="text-green-600 text-lg font-semibold">
-                +{reward} coins
+                +{reward || '0'} coins
               </p>
-              <p className="text-gray-600 text-sm">Streak: {streak} day{streak > 1 ? 's' : ''}</p>
+              <p className="text-gray-600 text-sm">
+                Streak: {streak || 1} day{(streak || 1) > 1 ? 's' : ''}
+              </p>
             </motion.div>
           ) : null}
 
