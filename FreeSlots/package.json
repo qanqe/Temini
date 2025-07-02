@@ -13,6 +13,7 @@
     "@twa-dev/sdk": "^8.0.2",
     "canvas-confetti": "^1.9.3",
     "crypto-js": "^4.2.0",
+    "framer-motion": "^12.22.0",
     "lottie-react": "^2.4.1",
     "node-fetch": "^3.3.2",
     "react": "^19.1.0",
