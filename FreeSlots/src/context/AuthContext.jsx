@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import apiService from '../services/api';
+import WebApp from '@twa-dev/sdk';
 
 const AuthContext = createContext();
 
@@ -17,7 +18,6 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
-        const { default: WebApp } = await import('@twa-dev/sdk');
         WebApp.ready();
         WebApp.expand();
 
