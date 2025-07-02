@@ -23,7 +23,7 @@ const SpinPage = () => {
     setShowReward(false);
 
     try {
-      const result = await apiService.spinWheel(user.telegramId);
+      const result = await apiService.freeSlot(user.telegramId);
       const { reward } = result;
 
       setSpinResult(reward);
