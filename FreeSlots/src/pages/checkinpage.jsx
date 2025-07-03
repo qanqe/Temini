@@ -7,26 +7,32 @@ const CheckinPage = () => {
   const { user, refreshUser } = useAuth();
   const [isClaiming, setIsClaiming] = useState(false);
   const [justClaimed, setJustClaimed] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [reward, setReward] = useState(null);
 
   useEffect(() => {
-    window.Telegram?.WebApp?.expand();
+    const tg = window.Telegram?.WebApp;
+    tg?.expand();
     const onBackButton = () => window.history.back();
-    window.Telegram?.WebApp?.BackButton?.onClick(onBackButton);
-    window.Telegram?.WebApp?.BackButton?.show();
+    tg?.BackButton?.onClick(onBackButton);
+    tg?.BackButton?.show();
     return () => {
-      window.Telegram?.WebApp?.BackButton?.offClick(onBackButton);
-      window.Telegram?.WebApp?.BackButton?.hide();
+      tg?.BackButton?.offClick(onBackButton);
+      tg?.BackButton?.hide();
     };
   }, []);
 
   const handleCheckin = async () => {
-    if (isClaiming) return;
+    if (isClaiming || justClaimed) return;
     setIsClaiming(true);
+    setErrorMsg('');
 
     try {
       const res = await apiService.dailyCheckin(user.telegramId);
 
-      const { streak } = res;
+      const { reward: rewardAmount, streak } = res;
+      setReward(rewardAmount);
+
       confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
 
       if (streak > 0 && streak % 7 === 0) {
@@ -39,6 +45,12 @@ const CheckinPage = () => {
       setJustClaimed(true);
     } catch (error) {
       console.error('Check-in failed:', error);
+      if (error?.response?.status === 429 || error?.message?.includes('already checked in')) {
+        setJustClaimed(true);
+        setErrorMsg('You have already checked in today. Come back tomorrow!');
+      } else {
+        setErrorMsg('Something went wrong. Please try again later.');
+      }
     } finally {
       setIsClaiming(false);
     }
@@ -82,8 +94,14 @@ const CheckinPage = () => {
         {isClaiming ? '⏳ Checking In...' : justClaimed ? '✅ Checked In!' : 'Check In Now'}
       </button>
 
-      {justClaimed && (
-        <div className="text-green-600 text-sm text-center mt-2">Check-in successful!</div>
+      {justClaimed && reward !== null && (
+        <div className="text-green-600 text-sm text-center mt-2">
+          ✅ You earned <strong>{reward}</strong> coins today!
+        </div>
+      )}
+
+      {errorMsg && (
+        <div className="text-red-600 text-sm text-center mt-2">{errorMsg}</div>
       )}
 
       {/* Reward Summary */}

@@ -1,115 +1,68 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://freeslots-backend.onrender.com';
+const API_BASE_URL = 'https://freeslots-backend.onrender.com/api/user';
+
+const getInitData = () => window?.Telegram?.WebApp?.initData || '';
 
 const buildHeaders = () => ({
   'Content-Type': 'application/json',
-  ...(window.Telegram?.WebApp?.initData && {
-    'x-Telegram-Auth': window.Telegram.WebApp.initData
-  })
+  'x-telegram-auth': getInitData()
 });
 
-const handleRequest = async (requestFn) => {
-  try {
-    const response = await requestFn();
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data?.error || `HTTP ${response.status}`);
-    }
-
-    return data;
-  } catch (error) {
-    console.error('[API] Error:', error);
-    return {
-      success: false,
-      error: error.message || 'Unknown error'
-    };
+const handleRequest = async (fn) => {
+  const res = await fn();
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error?.error || 'Unknown error');
   }
+  return res.json();
 };
 
 const apiService = {
-  // Auth/Register/Login
-  authUser: (body) =>
+  authUser: (telegramId, username, referrerId) =>
     handleRequest(() =>
-      fetch(`${API_BASE_URL}/user/auth`, {
+      fetch(`${API_BASE_URL}/auth`, {
         method: 'POST',
         headers: buildHeaders(),
-        body: JSON.stringify(body)
+        body: JSON.stringify({ telegramId, username, referrerId })
       })
     ),
 
-  // FREE Slot Spin (Home Page)
-  freeSlot: (telegramId) =>
+  freeSlot: () =>
     handleRequest(() =>
-      fetch(`${API_BASE_URL}/user/free-slot`, {
+      fetch(`${API_BASE_URL}/free-slot`, {
         method: 'POST',
-        headers: buildHeaders(),
-        body: JSON.stringify({ telegramId, initData: window.Telegram.WebApp.initData })
+        headers: buildHeaders()
       })
     ),
 
-  // PAID Spin (Spin Page)
-  paidSpin: (telegramId) =>
+  paidSpin: () =>
     handleRequest(() =>
-      fetch(`${API_BASE_URL}/user/spin`, {
+      fetch(`${API_BASE_URL}/spin`, {
         method: 'POST',
-        headers: buildHeaders(),
-        body: JSON.stringify({ telegramId, initData: window.Telegram.WebApp.initData })
+        headers: buildHeaders()
       })
     ),
 
-  // Daily Check-in
-  dailyCheckin: (telegramId) =>
+  dailyCheckin: () =>
     handleRequest(() =>
-      fetch(`${API_BASE_URL}/user/checkin`, {
+      fetch(`${API_BASE_URL}/checkin`, {
         method: 'POST',
-        headers: buildHeaders(),
-        body: JSON.stringify({ telegramId, initData: window.Telegram.WebApp.initData })
+        headers: buildHeaders()
       })
     ),
 
-  // Referral (Apply Referrer Code)
-  applyReferral: (telegramId, referrerId) =>
-    handleRequest(() =>
-      fetch(`${API_BASE_URL}/user/referral`, {
-        method: 'POST',
-        headers: buildHeaders(),
-        body: JSON.stringify({
-          telegramId,
-          referrerId,
-          initData: window.Telegram.WebApp.initData
-        })
-      })
-    ),
-
-  // Reward Logs
   getRewardLogs: () =>
     handleRequest(() =>
-      fetch(`${API_BASE_URL}/user/rewards`, {
+      fetch(`${API_BASE_URL}/rewards`, {
         method: 'GET',
         headers: buildHeaders()
       })
     ),
 
-  // Get Referral Info
-  getReferralInfo: (telegramId) =>
+  getReferralInfo: () =>
     handleRequest(() =>
-      fetch(`${API_BASE_URL}/user/referral-info?telegramId=${telegramId}`, {
+      fetch(`${API_BASE_URL}/referral-info`, {
         method: 'GET',
         headers: buildHeaders()
-      })
-    ),
-
-  // Claim Referral Reward
-  claimReferralReward: (telegramId, rewardId) =>
-    handleRequest(() =>
-      fetch(`${API_BASE_URL}/user/referral-claim`, {
-        method: 'POST',
-        headers: buildHeaders(),
-        body: JSON.stringify({
-          telegramId,
-          rewardId,
-          initData: window.Telegram.WebApp.initData
-        })
       })
     )
 };
