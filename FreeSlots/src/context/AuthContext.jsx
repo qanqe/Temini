@@ -35,8 +35,10 @@ export const AuthProvider = ({ children }) => {
 
         const payload = {
           telegramId: tgUser.id.toString(),
-          username: tgUser.username || `${tgUser.first_name} ${tgUser.last_name || ''}`.trim(),
-          initData
+          username:
+            tgUser.username ||
+            `${tgUser.first_name} ${tgUser.last_name || ''}`.trim(),
+          initData,
         };
 
         const res = await apiService.authUser(payload);
@@ -58,25 +60,38 @@ export const AuthProvider = ({ children }) => {
 
   const refreshUser = async () => {
     try {
-      const res = await apiService.authUser({
-        telegramId: telegramUser?.id?.toString(),
-        username: telegramUser?.username,
-        initData: window.Telegram?.WebApp?.initData
-      });
+      const initData = window.Telegram?.WebApp?.initData;
+      const tg = telegramUser;
+
+      if (!tg?.id || !initData) {
+        console.warn('[Auth] Missing Telegram user or initData for refresh.');
+        return;
+      }
+
+      const payload = {
+        telegramId: tg.id.toString(),
+        username:
+          tg.username ||
+          `${tg.first_name} ${tg.last_name || ''}`.trim(),
+        initData,
+      };
+
+      const res = await apiService.authUser(payload);
 
       if (res.success && res.user) {
         setUser(res.user);
+      } else {
+        console.warn('[Auth] Refresh response invalid:', res);
       }
     } catch (err) {
       alert(`[Auth] Refresh failed:\n${err.message}`);
     }
   };
 
-  // Allow direct update (used in InvitePage for claiming reward without full refresh)
   const updateUser = (updates) => {
     setUser((prev) => ({
       ...prev,
-      ...updates
+      ...updates,
     }));
   };
 
@@ -87,7 +102,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         telegramUser,
         refreshUser,
-        updateUser
+        updateUser,
       }}
     >
       {children}
@@ -96,3 +111,5 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
+
+export default AuthContext;
