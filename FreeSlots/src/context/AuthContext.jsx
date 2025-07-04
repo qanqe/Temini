@@ -10,56 +10,62 @@ export const AuthProvider = ({ children }) => {
   const [telegramUser, setTelegramUser] = useState(null);
 
   useEffect(() => {
-    const initTelegram = async () => {
-      try {
-        if (!window.Telegram?.WebApp) {
-          alert('[Auth] Not running in Telegram WebApp');
-          setLoading(false);
-          return;
-        }
-
-        console.log('WebApp object:', WebApp);
-        console.log('Underlying window.Telegram.WebApp:', window.Telegram?.WebApp);
-
-        await window.Telegram.WebApp.ready();
-window.Telegram.WebApp.expand();
-
-const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
-const initData = window.Telegram.WebApp.initData;
-
-        if (!tgUser || !initData) {
-          alert('[Auth] Telegram user or initData is missing');
-          alert('[DEBUG] initData: ' + initData);
-          setLoading(false);
-          return;
-        }
-
-        setTelegramUser(tgUser);
-
-        const payload = {
-          telegramId: tgUser.id.toString(),
-          username:
-            tgUser.username ||
-            `${tgUser.first_name} ${tgUser.last_name || ''}`.trim(),
-          initData,
-        };
-
-        const res = await apiService.authUser(payload);
-
-        if (res.success && res.user) {
-          setUser(res.user);
-        } else {
-          alert(`[Auth] Auth failed:\n${JSON.stringify(res, null, 2)}`);
-        }
-      } catch (err) {
-        alert(`[Auth] Telegram SDK or auth error:\n${err.message}`);
-      } finally {
+  const handleTelegramReady = async () => {
+    try {
+      const tg = window.Telegram?.WebApp;
+      if (!tg) {
+        alert('[Auth] Not running in Telegram WebApp');
         setLoading(false);
+        return;
       }
-    };
 
-    initTelegram();
-  }, []);
+      await tg.ready();
+      tg.expand();
+
+      const tgUser = tg.initDataUnsafe?.user;
+      const initData = tg.initData;
+
+      if (!tgUser || !initData) {
+        alert('[Auth] Telegram user or initData is missing');
+        setLoading(false);
+        return;
+      }
+
+      setTelegramUser(tgUser);
+
+      const payload = {
+        telegramId: tgUser.id.toString(),
+        username: tgUser.username || `${tgUser.first_name} ${tgUser.last_name || ''}`.trim(),
+        initData,
+      };
+
+      const res = await apiService.authUser(payload);
+
+      if (res.success && res.user) {
+        setUser(res.user);
+      } else {
+        alert(`[Auth] Auth failed:\n${JSON.stringify(res, null, 2)}`);
+      }
+    } catch (err) {
+      alert(`[Auth] Telegram SDK or auth error:\n${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Listen for native Telegram WebApp readiness event
+  window.addEventListener('telegram-web-app-ready', handleTelegramReady);
+
+  // Fallback in case the event already fired
+  if (window.Telegram?.WebApp?.isReady) {
+    handleTelegramReady();
+  }
+
+  return () => {
+    window.removeEventListener('telegram-web-app-ready', handleTelegramReady);
+  };
+}, []);
+
 
   const refreshUser = async () => {
     try {
