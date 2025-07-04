@@ -18,11 +18,14 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
-        await WebApp.ready();
-        WebApp.expand();
+        console.log('WebApp object:', WebApp);
+        console.log('Underlying window.Telegram.WebApp:', window.Telegram?.WebApp);
 
-        const tgUser = WebApp.initDataUnsafe?.user;
-        const initData = WebApp.initData;
+        await window.Telegram.WebApp.ready();
+window.Telegram.WebApp.expand();
+
+const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
+const initData = window.Telegram.WebApp.initData;
 
         if (!tgUser || !initData) {
           alert('[Auth] Telegram user or initData is missing');
