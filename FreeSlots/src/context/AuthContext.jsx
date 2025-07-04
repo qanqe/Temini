@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
-        WebApp.ready();
+        await WebApp.ready();
         WebApp.expand();
 
         const tgUser = WebApp.initDataUnsafe?.user;
