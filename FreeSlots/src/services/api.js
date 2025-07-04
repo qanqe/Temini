@@ -17,12 +17,12 @@ const handleRequest = async (fn) => {
 };
 
 const apiService = {
-  authUser: (telegramId, username, referrerId) =>
+  authUser: ({ telegramId, username, initData, referrerId }) =>
     handleRequest(() =>
       fetch(`${API_BASE_URL}/auth`, {
         method: 'POST',
         headers: buildHeaders(),
-        body: JSON.stringify({ telegramId, username, referrerId })
+        body: JSON.stringify({ telegramId, username, initData, referrerId })
       })
     ),
 
