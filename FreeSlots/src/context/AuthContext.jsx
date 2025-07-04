@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [telegramUser, setTelegramUser] = useState(null);
 
-  useEffect(() => {
+useEffect(() => {
   const handleTelegramReady = async () => {
     try {
       const tg = window.Telegram?.WebApp;
@@ -53,12 +53,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Listen for native Telegram WebApp readiness event
   window.addEventListener('telegram-web-app-ready', handleTelegramReady);
 
-  // Fallback in case the event already fired
-  if (window.Telegram?.WebApp?.isReady) {
+  if (window.Telegram?.WebApp?.initData || window.Telegram?.WebApp?.initDataUnsafe) {
     handleTelegramReady();
+  } else {
+    console.warn('[Auth] Waiting for Telegram SDK event...');
+    setTimeout(() => handleTelegramReady(), 1000);
   }
 
   return () => {
