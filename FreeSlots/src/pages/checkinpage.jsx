@@ -22,6 +22,23 @@ const CheckinPage = () => {
     };
   }, []);
 
+  const hasCheckedInToday = () => {
+    if (!user?.lastCheckIn) return false;
+    const last = new Date(user.lastCheckIn);
+    const now = new Date();
+    return (
+      last.getFullYear() === now.getFullYear() &&
+      last.getMonth() === now.getMonth() &&
+      last.getDate() === now.getDate()
+    );
+  };
+
+  useEffect(() => {
+    if (hasCheckedInToday()) {
+      setJustClaimed(true);
+    }
+  }, [user?.lastCheckIn]);
+
   const handleCheckin = async () => {
     if (isClaiming || justClaimed) return;
     setIsClaiming(true);
@@ -29,7 +46,6 @@ const CheckinPage = () => {
 
     try {
       const res = await apiService.dailyCheckin(user.telegramId);
-
       const { reward: rewardAmount, streak } = res;
       setReward(rewardAmount);
 
