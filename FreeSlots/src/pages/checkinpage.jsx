@@ -39,8 +39,8 @@ const CheckinPage = () => {
     }
   }, [user?.lastCheckIn]);
 
-  const handleCheckin = async () => {
-    if (isClaiming || justClaimed) return;
+  const handleCheckin = async (manual = false) => {
+    if (!manual || isClaiming || justClaimed) return;
     setIsClaiming(true);
     setErrorMsg('');
 
@@ -102,7 +102,7 @@ const CheckinPage = () => {
       {/* Check-in button */}
       <button
         disabled={isClaiming || justClaimed}
-        onClick={handleCheckin}
+        onClick={() => handleCheckin(true)}
         className={`w-full py-3 rounded-xl text-white font-bold text-lg transition-all duration-150 shadow-md
           ${isClaiming || justClaimed ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:scale-[1.02] active:scale-[0.98]'}
         `}
